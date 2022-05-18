@@ -24,7 +24,7 @@ id | name | surname | n_group | score | address | date_birth
 
 ```SQL
 CREATE table STUDENTS (
-    id         sterial
+    id         serial,
     NAME       VARCHAR(255) NOT NULL,
     SURNAME    VARCHAR(255),
     N_GROUP    NUMERIC(4,0) NOT NULL,
