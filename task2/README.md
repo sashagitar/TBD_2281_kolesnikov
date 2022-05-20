@@ -742,3 +742,239 @@ WHERE sub.total_count*0.6 < above_score_count
 ![exesize3_11](image/exe3_11.png)
 
 <br></br>
+
+### <a name="3_12"></a>  Для каждого курса подсчитать количество различных действующих хобби на курсе.
+
+#### `Запрос`
+
+```SQL
+select left(st.n_group::varchar, 1) cours, count(hb.name) col_vo_hobby
+from students st, students_hobbies st_hb, hobby hb
+where st.id = st_hb.student_id and
+		hb.id = st_hb.hobby_id
+group by cours
+```
+
+#### `Вывод`
+
+![exesize3_12](image/exe3_12.png)
+
+<br></br>
+
+### <a name="3_13"></a>  Вывести номер зачётки, фамилию и имя, дату рождения и номер курса для всех отличников, не имеющих хобби. Отсортировать данные по возрастанию в пределах курса по убыванию даты рождения.
+
+#### `Запрос`
+
+```SQL
+select st.id, st.name, st.surname, st.date_birth, left(n_group::varchar, 1) n_cours
+from hobby hb, students st, students_hobbies st_hb
+where (st.id not in -- кто никогда не имел хобби
+			(select st_hb.student_id
+			from students_hobbies st_hb
+			group by st_hb.student_id) or
+	   (st.id in    -- кто имел но все закончил
+			(SELECT sth.id
+    		FROM students_hobbies sth
+    		GROUP BY sth.id
+    		HAVING COUNT(sth.date_finish) = COUNT(sth.date_start)))) and
+	   st.score >= 4.5
+group by st.id, n_cours,  st.name, st.surname, st.date_birth
+```
+
+#### `Вывод`
+
+![exesize3_13](image/exe3_13.png)
+
+<br></br>
+
+### <a name="3_14"></a> Создать представление, в котором отображается вся информация о студентах, которые продолжают заниматься хобби в данный момент и занимаются им как минимум 5 лет.
+
+#### `Запрос`
+
+```SQL
+select st.id, st.name, st.surname, (now()::date - st_hb.date_start)/365 years
+from hobby hb, students st, students_hobbies st_hb
+where 	st_hb.student_id = st.id and
+		st_hb.hobby_id = hb.id and
+		st_hb.date_finish is null and
+		(now()::date - st_hb.date_start)/365 > 5
+		
+group by st.id,  st.name, st.surname, st_hb.date_start
+```
+
+#### `Вывод`
+
+![exesize3_14](image/exe3_14.png)
+
+<br></br>
+
+### <a name="3_15"></a> Для каждого хобби вывести количество людей, которые им занимаются.
+
+#### `Запрос`
+
+```SQL
+SELECT h.name, COUNT(DISTINCT sth.id)
+FROM hobby h
+INNER JOIN students_hobbies sth
+ON h.id = sth.hobby_id
+GROUP BY h.name
+```
+
+#### `Вывод`
+
+![exesize3_15](image/exe3_15.png)
+
+<br></br>
+
+### <a name="3_16"></a> Вывести ИД самого популярного хобби.
+
+#### `Запрос`
+
+```SQL
+SELECT h.name, COUNT(DISTINCT sth.id)
+FROM hobby h
+INNER JOIN students_hobbies sth
+ON h.id = sth.hobby_id
+GROUP BY h.name
+```
+
+#### `Вывод`
+
+![exesize3_15](image/exe3_15.png)
+
+<br></br>
+
+### <a name="3_16"></a> Вывести ИД самого популярного хобби.
+
+#### `Запрос`
+
+```SQL
+SELECT h.name, COUNT(DISTINCT sth.id) counte
+FROM hobby h
+INNER JOIN students_hobbies sth
+ON h.id = sth.hobby_id
+GROUP BY h.name
+order by counte desc
+limit 1
+```
+
+#### `Вывод`
+
+![exesize3_16](image/exe3_16.png)
+
+<br></br>
+
+### <a name="3_17"></a> Вывести всю информацию о студентах, занимающихся самым популярным хобби.
+
+#### `Запрос`
+
+```SQL
+select st.id, st.name, st.surname, st.n_group
+from students st
+INNER JOIN students_hobbies st_hb
+on st.id = st_hb.student_id
+where 
+	st_hb.hobby_id = (SELECT st_hb.hobby_id
+    	FROM students_hobbies st_hb
+    	GROUP BY st_hb.hobby_id
+    	ORDER BY COUNT(st_hb.id) DESC
+    	LIMIT 1) and
+	st_hb.date_finish is null
+
+```
+
+#### `Вывод`
+
+![exesize3_17](image/exe3_17.png)
+
+<br></br>
+
+### <a name="3_18"></a> Вывести ИД 3х хобби с максимальным риском.
+
+#### `Запрос`
+
+```SQL
+select hb.id, hb.name, hb.risk
+from hobby hb
+order by hb.risk desc
+limit 3
+```
+
+#### `Вывод`
+
+![exesize3_18](image/exe3_18.png)
+
+<br></br>
+
+### <a name="3_19"></a> Вывести 10 студентов, которые занимаются одним (или несколькими) хобби самое продолжительно время.
+
+#### `Запрос`
+
+```SQL
+select st.id, st.name, st.surname, hb.name, now()::date - st_hb.date_start days
+from hobby hb, students st, students_hobbies st_hb
+where 	st.id = st_hb.student_id and
+		hb.id = st_hb.hobby_id and
+		st_hb.date_finish is null
+order by days desc
+limit 10
+```
+
+#### `Вывод`
+
+![exesize3_19](image/exe3_19.png)
+
+<br></br>
+
+### <a name="3_20"></a> Вывести номера групп (без повторений), в которых учатся студенты из предыдущего запроса.
+
+#### `Запрос`
+
+```SQL
+select tb.n_group
+from (
+	select st.id, st.n_group, st.name, st.surname, hb.name, now()::date - st_hb.date_start days
+	from hobby hb, students st, students_hobbies st_hb
+	where 	st.id = st_hb.student_id and
+			hb.id = st_hb.hobby_id and
+			st_hb.date_finish is null
+	order by days desc
+	limit 10) tb
+group by tb.n_group
+```
+
+#### `Вывод`
+
+![exesize3_20](image/exe3_20.png)
+
+<br></br>
+
+### <a name="3_21"></a> Создать представление, которое выводит номер зачетки, имя и фамилию студентов, отсортированных по убыванию среднего балла.
+
+#### `Запрос`
+
+```SQL
+select st.id, st.n_group, st.name, st.surname, st.score
+from students st
+order by st.score desc
+```
+
+#### `Вывод`
+
+![exesize3_21](image/exe3_21.png)
+
+<br></br>
+
+### <a name="3_22"></a> Представление: найти каждое популярное хобби на каждом курсе.
+
+#### `Запрос`
+
+```SQL
+
+```
+
+#### `Вывод`
+
+![exesize3_20](image/exe3_21.png)
+
+<br></br>
