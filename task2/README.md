@@ -1115,7 +1115,7 @@ GROUP BY
 
 <br></br>
 
-### <a name="3_27"></a> 29. Для каждого года рождения подсчитывается количество хобби, наблюдаемое или занимавшееся студентами.
+### <a name="3_29"></a> 29. Для каждого года рождения подсчитывается количество хобби, наблюдаемое или занимавшееся студентами.
 
 #### `Запрос`
 
@@ -1129,6 +1129,213 @@ GROUP BY EXTRACT(YEAR FROM st.date_birth)
 
 #### `Вывод`
 
-![exesize3_27](image/exe3_28.png)
+![exesize3_29](image/exe3_29.png)
+
+<br></br>
+
+### <a name="3_30"></a> 30. Для каждой буквы алфавита в большинстве случаев возникает риск, связанный с хобби.
+
+#### `Запрос`
+
+```SQL
+--непонял задание
+```
+
+#### `Вывод`
+
+<br></br>
+
+### <a name="3_31"></a> 31. Для каждого месяца из-за даты рождения студентов получаются средние баллы, которые являются хобби под названием «Футбол».
+
+#### `Запрос`
+
+```SQL
+SELECT EXTRACT(MONTH FROM st.date_birth) month_, COUNT(st.id) col_st
+FROM students st
+INNER JOIN students_hobbies st_hb
+ON st_hb.id = st.id
+INNER JOIN hobby hb
+ON st_hb.hobby_id = hb.id
+GROUP BY EXTRACT(MONTH FROM st.date_birth), hb.name
+HAVING hb.name = 'футбол'
+```
+
+#### `Вывод`
+
+![exesize3_31](image/exe3_31.png)
+
+<br></br>
+
+### <a name="3_32"></a> 32. Вывести информацию о студентах, которые занимались или занимались хотя бы 1 хобби в следующем формате: Имя: Иван, фамилия: Иванов, группа: 1234
+#### `Запрос`
+
+```SQL
+SELECT st.name, st.surname, st.n_group
+FROM students st
+WHERE
+  st.id IN 
+    (SELECT st.id
+    FROM students st
+    INNER JOIN students_hobbies st_hb
+    ON st_hb.student_id = st.id
+    INNER JOIN hobby hb
+    ON st_hb.hobby_id = hb.id
+    GROUP BY st.id)
+```
+
+#### `Вывод`
+
+![exesize3_32](image/exe3_32.png)
+
+<br></br>
+
+### <a name="3_33"></a> 33. Внешний вид в какой-то по счёту символа встречается «ов». Если 0 (т.е. не встречается, то выведите на экран «не найдено»).
+#### `Запрос`
+
+```SQL
+SELECT 
+  st.surname,
+  CASE
+    WHEN POSITION('ов' IN st.surname) = 0
+    THEN 'Не найдено'
+  ELSE POSITION('ов' IN st.surname)::VARCHAR
+  END
+FROM students st
+```
+
+#### `Вывод`
+
+![exesize3_33](image/exe3_33.png)
+
+<br></br>
+
+### <a name="3_34"></a> 34. Дополнить фамилию прямым символом # до 10 символов.
+
+#### `Запрос`
+
+```SQL
+SELECT OVERLAY('##########' placing st.surname FROM 1)
+FROM students st
+```
+
+#### `Вывод`
+
+![exesize3_34](image/exe3_34.png)
+
+<br></br>
+
+### <a name="3_35"></a> 35. При помощи функции удалить все символы # из полученного запроса.
+
+#### `Запрос`
+
+```SQL
+SELECT TRIM(TRAILING '#' FROM OVERLAY('##########' placing st.surname FROM 1)) surname
+FROM students st
+```
+
+#### `Вывод`
+
+![exesize3_35](image/exe3_35.png)
+
+<br></br>
+
+### <a name="3_36"></a> 36. Выведите на экран количество дней в прошлом 2018 году.
+
+#### `Запрос`
+
+```SQL
+SELECT EXTRACT(DAY FROM '2019-01-01'::TIMESTAMP-'2018-01-01'::TIMESTAMP)
+```
+
+#### `Вывод`
+
+![exesize3_36](image/exe3_36.png)
+
+<br></br>
+
+### <a name="3_37"></a> 37. Вывести на экран какого числа будет ближайшая суббота.
+
+#### `Запрос`
+
+```SQL
+SELECT NOW()::DATE + (6-EXTRACT(DOW FROM NOW()))::INT суббота
+```
+
+#### `Вывод`
+
+![exesize3_37](image/exe3_37.png)
+
+<br></br>
+
+### <a name="3_38"></a> 38. Выведите на экран век, а также какая сейчас неделя года и день года.
+
+#### `Запрос`
+
+```SQL
+SELECT 
+  EXTRACT(CENTURY FROM NOW()) cent, 
+  EXTRACT(WEEK FROM NOW()) week,
+  EXTRACT(DOY FROM NOW()) days
+```
+
+#### `Вывод`
+
+![exesize3_38](image/exe3_38.png)
+
+<br></br>
+
+### <a name="3_39"></a> 39. Вы вводите всех студентов, которые занимались хотя бы 1 хобби. Выведите на экран Имя, Фамилию, Название хобби, а также надпись «занимается», если студент продолжает заниматься хобби в данный момент или «закончил», если уже не занимается.
+
+#### `Запрос`
+
+```SQL
+SELECT 
+  st.name, 
+  st.surname,
+  hb.name,
+  CASE
+    WHEN (st_hb.date_finish IS NULL) THEN 'Занимается'
+    WHEN (st_hb.date_finish is NOT NULL) THEN 'Закончил'
+  END status
+FROM students st
+INNER JOIN students_hobbies st_hb
+ON st_hb.id = st.id
+INNER JOIN hobby hb
+ON st_hb.hobby_id = hb.id
+```
+
+#### `Вывод`
+
+![exesize3_39](image/exe3_39.png)
+
+<br></br>
+
+### <a name="3_40"></a> 40. Для каждой группы приводят количество студентов учится на 5,4,3,2. Использовать обычное математическое округление. Итоговый результат должен выглядеть примерно так:
+
+
+СЧЕТ  | 2222 | 3011 | 4011 | 4032 
+----- | ---- | ---- | ---- | ---- 
+2     | 0    | 0    | 0    | 1 
+3     | 1    | 2    | 1    | 1 
+4     | 4    | 3    | 3    | 3 
+5     | 1    | 1    | 1    | 0 
+
+#### `Запрос`
+
+```SQL
+SELECT 
+  st.n_group, 
+  COUNT(st.score) FILTER (WHERE ROUND(st.score) = 5) five,
+  COUNT(st.score) FILTER (WHERE ROUND(st.score) = 4) four,
+  COUNT(st.score) FILTER (WHERE ROUND(st.score) = 3) three,
+  COUNT(st.score) FILTER (WHERE ROUND(st.score) = 2) two
+FROM students st
+GROUP BY
+  st.n_group
+```
+
+#### `Вывод`
+
+![exesize3_40](image/exe3_40.png)
 
 <br></br>
