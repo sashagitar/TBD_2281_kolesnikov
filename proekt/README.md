@@ -203,6 +203,9 @@ where name=? or amount=? -- нужное(ненужное) добавить(уб
 select name, price, status
 from tasks
 where status != 2
+ORDER BY id desc
+limit ?
+offset ?
 ```
 
 ```SQL
