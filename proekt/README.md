@@ -140,7 +140,7 @@ id, поиск по названию поставщика, поиск по на�
 
 ```SQL
 INSERT INTO users (name, surname, post, access)
-VALUES (?, ?, ?, ?); -- или VALUES (?) для добавления массивом
+VALUES ($1, $2, $3, $4); -- или VALUES ($) для добавления массивом
 ```
 
 ```SQL
@@ -150,12 +150,12 @@ INNER JOIN products pr
 ON pr.id = tr.id_product
 INNER JOIN suppliers sup
 ON sup.id = tr.id_provider
-where  status=2 and (pr.name = ? or tr.id = ? or tr.adress = ? or tr.departure_date = ?) -- нужное(ненужное) добавить(убрать) через php легко делается
+where  status=2 and (pr.name = $1 or tr.id = $2 or tr.adress = $3 or tr.departure_date = $4) -- нужное(ненужное) добавить(убрать) через php легко делается
 ```
 
 ```SQL
 delete from users
-where name=? and surname=? -- или id = ?
+where name=$1 and surname=$2 -- или id = $
 ```
 
 ## оператор
@@ -169,22 +169,22 @@ where name=? and surname=? -- или id = ?
 
 ```SQL
 INSERT INTO users (name, surname, post, access)
-VALUES (?, ?, ?, 2); -- или VALUES (?) для добавления массивом
+VALUES ($1, $2, $3, 2); -- или VALUES ($) для добавления массивом
 ```
 
 ```SQL
 insert into products (name, weight_kg, amount, size, from_whom)
-value (?, ?, ?, ?, ?) -- или VALUES (?) для добавления массивом
+value ($1, $2, $3, $4, $5) -- или VALUES ($) для добавления массивом
 ```
 
 ```SQL
 insert into transit (id_product, id_provider, amount, adress, departure_date)
-value (?, ?, ?, ?, ?) -- или VALUES (?) для добавления массивом
+value ($1, $2, $3, $4, $5) -- или VALUES ($) для добавления массивом
 ```
 
 ```SQL
 insert into work (id_task, id_user)
-value(?, ?)
+value($1, $2)
 ```
 
 ## Пользователь 
@@ -196,7 +196,7 @@ value(?, ?)
 ```SQL
 select name, weight_kg, amount, size, from_whom
 from products
-where name=? or amount=? -- нужное(ненужное) добавить(убрать) через php легко делается
+where name=$1 or amount=$2 -- нужное(ненужное) добавить(убрать) через php легко делается
 ```
 
 ```SQL
@@ -204,11 +204,11 @@ select name, price, status
 from tasks
 where status != 2
 ORDER BY id desc
-limit ?
-offset ?
+limit $1
+offset $2
 ```
 
 ```SQL
 insert into work (id_task, id_user)
-value(? , $_SESSION[id]) -- второй параметр определяется сессией и ставится автоматически (php)
+value($1 , $2) -- второй параметр определяется сессией и ставится автоматически (php)
 ```
