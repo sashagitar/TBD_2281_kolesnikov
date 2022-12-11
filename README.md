@@ -9,4 +9,8 @@ make: The term 'make' is not recognized as a name of a cmdlet, function, script 
 Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
 ```
 
-как работает написание docker понял только отчасти, за что отвечают параметры composte так и не понял
+Как работает написание docker понял только отчасти(малую часть), за что отвечают параметры composte так и не понял
+
+Отложенные уведомления не реализовал.
+
+Буду дорабатывать. Вопросов очень много.
