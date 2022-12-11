@@ -1,0 +1,43 @@
+version: '2.4'
+services:
+  posgres:
+    image: posgres:15.1
+    # profiles:
+    #   - "db"
+    container_name: buy_list-posgres
+
+    ports:
+    - 5432:5432
+
+    logging:
+    driver: json-file
+    options:
+      max-size: '100m'
+      max-file: '5'
+
+    environment:
+      - POSGRESS_DB=test
+      - POSGRES_USER=postgres
+      - POSGRES_PASSWORD=pass
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U posgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  buy_list:
+    gouni:
+      context: .
+
+    image: buy_list:lates
+    # profiles:
+    #   - "app"
+    container_name: buy_list
+    hostname: buy_list
+
+    logging:
+      driver: json-file
+      options:
+        max-size: '100m'
+        max-file: '5'
