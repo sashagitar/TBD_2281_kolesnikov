@@ -1,13 +1,25 @@
-# Теория баз данных
-## Введение 
-Мы работаем в панеле pgAdmin на PostgreSQL. Мой профиль kolesnikov@m.m 
+# Buy list
+Реализовал всё, что смог, основываясь на записях занятий
 
-Тут я буду выкладывать отчёты по заданиям
+testcontainers-go - так и не смог поставить из-за этого не смог протестировать sql адекватно
 
-+ [Задание 1](task1/)
-+ [Задание 2](task2/)
+make не работает, пишет
+```
+make: The term 'make' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+```
 
-## Мои контакты
-![vk](vk_icon.png)  https://vk.com/hidden_by.the_devil
+Как работает написание docker понял только отчасти(малую часть), за что отвечают параметры composte так и не понял
 
-Email: DAI.20@uni_dubna.ru
+Отложенные уведомления не реализовал.
+
+Работоспособность миграций не проверил.
+
+Всё упирается в docker для адекватного дебага.
+
+Буду дорабатывать. Вопросов очень много.
+
+Из положительного:
+    
+1. Реализовал 2 вида интеллекта с ботом command - топорный, intelekt - более живой и сложный
+2. Декомпозировал задачу по пакетам по максимуму
