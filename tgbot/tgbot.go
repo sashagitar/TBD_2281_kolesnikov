@@ -33,7 +33,7 @@ func sendAnswer(bot *tgbotapi.BotAPI, id_user int, answer *string) {
 	bot.Send(msg)
 }
 
-var connDB = "postgres://postgres:postgrespw@localhost:49153"
+var connDB = "postgres://postgres:pass@localhost:5432/test"
 
 func Run(bot *tgbotapi.BotAPI) {
 
@@ -42,20 +42,20 @@ func Run(bot *tgbotapi.BotAPI) {
 	}
 	// make migration
 
-	// Read migrations from /home/mattes/migrations and connect to a local postgres database.
+	// Read migrations from /home/migrations and connect to a local postgres database.
 	m, err := migrate.New("file://migrations", connDB)
 	if err != nil {
-		log.Println(err)
+		panic(err)
 	}
 
 	// Migrate all the way up ...
 	if err := m.Up(); err != nil {
-		log.Println(err)
+		panic(err)
 	}
-	err = m.Force(1)
-	if err := m.Down(); err != nil {
-		log.Println(err)
-	}
+	// err = m.Force(1)
+	// if err := m.Down(); err != nil {
+	// 	log.Println(err)
+	// }
 	log.Println("migration is done")
 
 	//11 is migrations version number, you may use your latest version

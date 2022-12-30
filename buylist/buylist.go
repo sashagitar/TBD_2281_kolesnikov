@@ -8,9 +8,14 @@ import (
 	"github.com/sashagitar/TBD_2281_kolesnikov/sqlmy"
 )
 
+type store interface {
+	GetList(id_user int, bought bool, sort bool) ([]sqlmy.ProduktDB, error)
+}
+
 type Buylist struct {
 	Holodos list.List
 	List    list.List
+	Store   store
 }
 
 func (b *Buylist) Clear(m bool) {
@@ -24,11 +29,11 @@ func (b *Buylist) Clear(m bool) {
 func (b *Buylist) GetList(id_user int, bought bool, sort bool) (string, error) {
 	s := "Список продуктов:\n"
 	b.Clear(bought)
-	prdb, err := sqlmy.GetList(id_user, bought, sort)
+	prdb, err := b.Store.GetList(id_user, bought, sort)
 	if err != nil {
 		return "", err
 	}
-	for _, v := range *prdb {
+	for _, v := range prdb {
 		p := produkt.ParseProduktDB(v)
 		if bought {
 			b.AddForHolodos(p, -1)

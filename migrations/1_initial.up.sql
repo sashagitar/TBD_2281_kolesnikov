@@ -1,3 +1,5 @@
+Begin;
+
 create table users (
     id serial primary key,
     id_tg int not null
@@ -36,3 +38,5 @@ create sequence notifications_seq;
 alter table notifications add constraint notifications_produkts_FK
 foreign key (id_product)
 references produkts (id);
+
+COMMIT;

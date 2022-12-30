@@ -30,15 +30,17 @@ type Notification struct {
 	Time     string `db:"time"`
 }
 
-var DB *sqlx.DB
+type store struct {
+	db *sqlx.DB
+}
 
-func Connect(connUri string) error {
+func Connect(connUri string) *store {
 	db, err := sqlx.Connect("pgx", connUri)
 	if err != nil {
-		return err
+		return nil
 	}
-	DB = db
-	return nil
+	s := store{db: db}
+	return &s
 
 }
 

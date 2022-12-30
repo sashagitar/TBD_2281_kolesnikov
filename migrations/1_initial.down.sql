@@ -1,3 +1,5 @@
+Begin;
+
 drop table notifications;
 drop sequence notifications_seq;
 
@@ -6,3 +8,5 @@ drop sequence products_seq;
 
 drop table users;
 drop sequence users_seq;
+
+COMMIT;
