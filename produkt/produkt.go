@@ -22,7 +22,7 @@ type Produkt struct {
 	Bought     bool
 	Used       bool
 	Thrown_out bool
-	Timer
+	Timer      *Timer
 }
 
 func ParseProdukt(p Produkt, id_user int) sqlmy.ProduktDB {
@@ -53,7 +53,7 @@ func ParseProduktDB(pdb sqlmy.ProduktDB) *Produkt {
 		Bought:     pdb.Bought,
 		Used:       pdb.Used,
 		Thrown_out: pdb.Thrown_out,
-		Timer:      ti,
+		Timer:      &ti,
 	}
 	return &p
 }
@@ -91,8 +91,12 @@ func (t *Timer) String() string {
 	}
 }
 
+func (p *Produkt) SetTimer(t *Timer) {
+	p.Timer = t
+}
+
 func (p *Produkt) GetTimer() *Timer {
-	return &(p.Timer)
+	return p.Timer
 }
 
 func (p *Produkt) String() string {

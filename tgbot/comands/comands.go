@@ -9,9 +9,22 @@ import (
 	"github.com/sashagitar/TBD_2281_kolesnikov/produkt"
 )
 
+type buylister interface {
+	Clear(m bool)
+	GetList(id_user int, bought bool, sort bool) (string, error)
+	GetHistory(id_user int) (string, error)
+	GetStats(id_user int, ts time.Time, tf time.Time) (int, int, error)
+	AddForList(p *produkt.Produkt, id_user int) (bool, error)
+	AddForHolodos(p *produkt.Produkt, id_user int) (bool, error)
+	MoveInHolodos(id int, id_user int) (bool, error)
+	Trash(id int, id_user int) (bool, error)
+	Used(id int, id_user int) (bool, error)
+	OpenProdukt(id int, id_user int, date *time.Time) (bool, error)
+}
+
 type Params struct {
 	id_user  int
-	buylistV *buylist.Buylist
+	buylistV buylister
 	sort     bool
 }
 
@@ -26,10 +39,11 @@ const help = `/addForList имя вес гггг-мм-дд чч:мм(уведо�
 
 const dateStrFormat = "2006-01-02 15:04"
 
-func (p *Params) Create(id_user int) {
+func Create(id_user int, db buylist.BD) *Params {
+	p := Params{}
 	p.id_user = id_user
-	p.buylistV = buylist.Get()
-
+	p.buylistV = buylist.Get(db)
+	return &p
 }
 
 func (p Params) addProdukt(msg string, mode bool) (string, error) {
@@ -60,7 +74,7 @@ func (p Params) addProdukt(msg string, mode bool) (string, error) {
 				Start:  &s,
 				Finish: &f,
 			}
-			pr.Timer = t
+			pr.Timer = &t
 		}
 		var f bool
 		if mode {
@@ -119,11 +133,10 @@ func (p Params) open(msg string) (string, error) {
 	if err != nil {
 		return "Дата введена не в правильном формате", nil
 	}
-	pr := p.buylistV.Holodos.Get(id)
-	if pr == nil {
+	f, err := p.buylistV.OpenProdukt(id, p.id_user, &t)
+	if err == nil || !f {
 		return "Нет такого продукта", nil
 	}
-	pr.SetTimer(&t)
 	return "данные обновлены", nil
 }
 

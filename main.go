@@ -10,6 +10,9 @@ const api_tg = "5701189684:AAFFPRctBBKqjl-yRzo7sIy-hsg8cGApz_4"
 
 func main() {
 	fmt.Printf("%s\n", api_tg)
+
+	// Создание бота
 	bot := tgbot.Create(api_tg)
-	tgbot.Run(bot)
+	// Запуск бота
+	bot.Run()
 }
