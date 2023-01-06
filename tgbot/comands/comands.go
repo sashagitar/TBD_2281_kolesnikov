@@ -1,6 +1,7 @@
 package comands
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -49,12 +50,12 @@ func Create(id_user int, db buylist.BD) *Params {
 func (p Params) addProdukt(msg string, mode bool) (string, error) {
 	words := strings.Fields(msg)
 	if mode && len(words) != 5 {
-		return "слишком мало аргументов", nil
+		return "слишком мало аргументов", fmt.Errorf("len words != 5")
 	}
 	if len(words) > 3 {
 		weight, err := strconv.ParseFloat(words[2], 64)
 		if err != nil {
-			return "", err
+			return "Вес введён не правильно", fmt.Errorf("comands: is not a digit")
 		}
 		pr := produkt.Produkt{
 			Name:       words[1],
@@ -67,7 +68,7 @@ func (p Params) addProdukt(msg string, mode bool) (string, error) {
 			s := time.Now()
 			f, err := time.Parse(dateStrFormat, words[3]+" "+words[4])
 			if err != nil {
-				return "Дата введена не в правильном формате", nil
+				return "Дата введена не в правильном формате", fmt.Errorf("comands addProdukt: is not date")
 			}
 			t := produkt.Timer{
 				Notif:  true,
@@ -83,59 +84,59 @@ func (p Params) addProdukt(msg string, mode bool) (string, error) {
 			f, err = p.buylistV.AddForHolodos(&pr, p.id_user)
 		}
 		if err != nil {
-			return "ошибка бд", err
+			return "ошибка бд", fmt.Errorf("comands addProdukt: %w", err)
 		}
 		if f {
 			list, err := p.buylistV.GetList(p.id_user, false, p.sort)
-			if err == nil {
-				return "Произошла ошибка", nil
+			if err != nil {
+				return "Произошла ошибка", fmt.Errorf("comands addProdukt: %w", err)
 			}
 			return "Продукт добавлен\n\n" + list, nil
 		}
-		return "Я не знаю, как ты так умудлился", nil
+		return "Я не знаю, как ты так умудлился", fmt.Errorf("comands addProdukt: error add data in sql")
 	}
-	return "err", nil
+	return "Недостаточно аргументов", fmt.Errorf("comands addProdukt: len words < 3")
 }
 
 func (p Params) moveProdToHolod(msg string) (string, error) {
 	words := strings.Fields(msg)
 	if len(words) != 2 {
-		return "Неверное количество аргументов", nil
+		return "Неверное количество аргументов", fmt.Errorf("comands: len word != 2")
 	}
 	id, err := strconv.Atoi(words[1])
 	if err != nil {
-		return "Введено не число", err
+		return "Введено не число", fmt.Errorf("comands moveProdToHolod is not digit: %w", err)
 	}
 	f, err := p.buylistV.MoveInHolodos(id, p.id_user)
 	if err != nil {
-		return "Произошла ошибка", err
+		return "Произошла ошибка", fmt.Errorf("comands moveProdToHolod: %w", err)
 	}
 	if f {
 		list, err := p.buylistV.GetList(p.id_user, true, p.sort)
 		if err != nil {
-			return "Произошла ошибка", err
+			return "Произошла ошибка", fmt.Errorf("comands moveProdToHolod: %w", err)
 		}
 		return "продукт перемещён\n" + list, nil
 	}
-	return "такого продукта нет", nil
+	return "такого продукта нет", fmt.Errorf("comands moveProdToHolod produkt not found")
 }
 
 func (p Params) open(msg string) (string, error) {
 	words := strings.Fields(msg)
 	if len(words) != 4 {
-		return "неверное количество аргументов", nil
+		return "неверное количество аргументов", fmt.Errorf("comands open len words !=4")
 	}
 	id, err := strconv.Atoi(words[1])
 	if err != nil {
-		return "Введено не число", err
+		return "Введено не число", fmt.Errorf("comands open is not a digit: %w", err)
 	}
 	t, err := time.Parse(dateStrFormat, words[2]+" "+words[3])
 	if err != nil {
-		return "Дата введена не в правильном формате", nil
+		return "Дата введена не в правильном формате", fmt.Errorf("comands open is not date: %w", err)
 	}
 	f, err := p.buylistV.OpenProdukt(id, p.id_user, &t)
 	if err == nil || !f {
-		return "Нет такого продукта", nil
+		return "Нет такого продукта", fmt.Errorf("comands open: %w", err)
 	}
 	return "данные обновлены", nil
 }
@@ -143,11 +144,11 @@ func (p Params) open(msg string) (string, error) {
 func (p Params) useOrDrop(msg string, mode bool) (string, error) {
 	words := strings.Fields(msg)
 	if len(words) != 2 {
-		return "неверное количество аргументов", nil
+		return "неверное количество аргументов", fmt.Errorf("comands useOrDrop len != 2")
 	}
 	id, err := strconv.Atoi(words[1])
 	if err != nil {
-		return "Введено не число", err
+		return "Введено не число", fmt.Errorf("comands useOrDrop is not digit: %w", err)
 	}
 	var f bool
 	if mode {
@@ -156,12 +157,12 @@ func (p Params) useOrDrop(msg string, mode bool) (string, error) {
 		f, err = p.buylistV.Trash(id, p.id_user)
 	}
 	if err != nil {
-		return "такого продукта нет", nil
+		return "такого продукта нет", fmt.Errorf("comands useOrDrop: %w", err)
 	}
 	if f {
 		return "Статус продукта обновлён", nil
 	}
-	return "Не, ну ты молодец, я не знаю как это у тебя получилось", nil
+	return "Не, ну ты молодец, я не знаю как это у тебя получилось", fmt.Errorf("comands useOrDrop error sql")
 
 }
 
@@ -172,20 +173,20 @@ func (p Params) statsuse(msg string) (string, error) {
 func (p Params) stats(msg string) (string, error) {
 	words := strings.Fields(msg)
 	if len(words) != 5 {
-		return "неверное количество аргументов", nil
+		return "неверное количество аргументов", fmt.Errorf("comands stats len worsd != 5")
 	}
 
 	ts, err := time.Parse(dateStrFormat, words[1]+" "+words[2])
 	if err != nil {
-		return "Дата введена не в правильном формате", nil
+		return "Дата введена не в правильном формате", fmt.Errorf("comands stats time start is not date: %w", err)
 	}
 	tf, err := time.Parse(dateStrFormat, words[3]+" "+words[4])
 	if err != nil {
-		return "Дата введена не в правильном формате", nil
+		return "Дата введена не в правильном формате", fmt.Errorf("comands stats time finish is not date: %w", err)
 	}
 	use, drop, err := p.buylistV.GetStats(p.id_user, ts, tf)
 	if err != nil {
-		return "ошибка бд", err
+		return "ошибка бд", fmt.Errorf("comands stats: %w", err)
 	}
 	return " Выброшено " + strconv.Itoa(drop) + " использованно " + strconv.Itoa(use), nil
 }

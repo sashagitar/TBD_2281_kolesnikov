@@ -9,4 +9,5 @@ drop sequence products_seq;
 drop table users;
 drop sequence users_seq;
 
+delete DATABASE test;
 COMMIT;

@@ -12,7 +12,10 @@ func main() {
 	fmt.Printf("%s\n", api_tg)
 
 	// Создание бота
-	bot := tgbot.Create(api_tg)
+	bot, err := tgbot.Create(api_tg)
+	if err != nil {
+		panic(err)
+	}
 	// Запуск бота
 	bot.Run()
 }

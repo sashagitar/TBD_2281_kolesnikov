@@ -9,7 +9,6 @@ import (
 	"github.com/sashagitar/TBD_2281_kolesnikov/sqlmy"
 	"github.com/sashagitar/TBD_2281_kolesnikov/tgbot/comands"
 
-	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
@@ -28,7 +27,7 @@ type Bot struct {
 }
 
 // Создание бота
-func Create(api string) *Bot {
+func Create(api string) (*Bot, error) {
 	// Подключение бота
 	bot, err := tgbotapi.NewBotAPI(api)
 	if err != nil {
@@ -43,10 +42,13 @@ func Create(api string) *Bot {
 	b.users_bot_tupoi = make(map[int]*comands.Params, 0)
 
 	// Побдключение к базе данных
-	b.store = sqlmy.Connect(connDB)
+	b.store, err = sqlmy.Connect(connDB)
+	if err != nil {
+		return nil, err
+	}
 	log.Printf("Authorized on account %s\n", bot.Self.UserName)
 
-	return &b
+	return &b, nil
 }
 
 // Отправка сообщения пользователю
@@ -57,29 +59,6 @@ func (b *Bot) sendAnswer(id_user int, answer *string) {
 
 // Запуск бота
 func (b *Bot) Run() {
-	// make migration
-
-	// Read migrations from /home/migrations and connect to a local postgres database.
-	m, err := migrate.New("file://migrations", connDB)
-	if err != nil {
-		panic(err)
-	}
-
-	// Migrate all the way up ...
-	if err := m.Up(); err != nil {
-		panic(err)
-	}
-	// err = m.Force(1)
-	// if err := m.Down(); err != nil {
-	// 	log.Println(err)
-	// }
-	log.Println("migration is done")
-
-	//11 is migrations version number, you may use your latest version
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-
 	// Запуск ожидания сообщений от пользователя
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60

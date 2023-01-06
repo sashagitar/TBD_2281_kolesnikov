@@ -1,5 +1,7 @@
 Begin;
 
+CREATE DATABASE test;
+
 create table users (
     id serial primary key,
     id_tg int not null
