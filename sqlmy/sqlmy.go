@@ -39,15 +39,13 @@ type sqlData struct {
 	People *Users
 }
 
-var connDB = "postgres://postgres:123@127.0.0.1:5432/test?sslmode=require"
-
 func MigrateDb(connUri string) error {
 	// make migration
 
 	// Read migrations from /home/migrations and connect to a local postgres database.
-	m, err := migrate.New("file://migrations", connDB)
+	m, err := migrate.New("file://migrations", connUri)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Migrate all the way up ...
@@ -55,6 +53,9 @@ func MigrateDb(connUri string) error {
 		panic(err)
 	}
 	err = m.Force(1)
+	if err != nil {
+		return fmt.Errorf("sqlmy MigrateDb Force: %w", err)
+	}
 	if err := m.Down(); err != nil {
 		return fmt.Errorf("sqlmy MigrateDb: %w", err)
 	}
@@ -65,7 +66,7 @@ func MigrateDb(connUri string) error {
 }
 
 func MigrationDown(connUri string) error {
-	m, err := migrate.New("file://migrations", connDB)
+	m, err := migrate.New("file://migrations", connUri)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +84,11 @@ func MigrationDown(connUri string) error {
 }
 
 func Connect(connUri string) (*sqlData, error) {
-	db, err := sqlx.Connect("postgres", connUri)
+	err := MigrateDb(connUri)
+	if err != nil {
+		return nil, fmt.Errorf("sqlmy Connect migrate fail: %w", err)
+	}
+	db, err := sqlx.Connect("pgx", connUri)
 	if err != nil {
 		return nil, fmt.Errorf("sqlmy Connect: %w", err)
 	}
@@ -95,7 +100,6 @@ func Connect(connUri string) (*sqlData, error) {
 		db:     db,
 		People: &u,
 	}
-	err = MigrateDb(connUri)
 	return &s, nil
 
 }

@@ -63,16 +63,8 @@ func GetTestDatabase(t *testing.T) (testcontainers.Container, *sqlData) {
 			"POSTGRES_DB":       database,
 		},
 		WaitingFor: wait.ForListeningPort("5432/tcp"),
-		// testcontainers.ContainerRequest{
-		// Image:        "postgres:14.1-alpine",
-		// ExposedPorts: []string{portt},
 		// Cmd:          []string{"postgres", "-c", "fsync=off"},
-		// Env: map[string]string{
-		// 	"POSTGRES_USER":     user,
-		// 	"POSTGRES_PASSWORD": password,
-		// 	"POSTGRES_DB":       database,
-		// },
-		// // WaitingFor: wait.ForLog("database system is ready to accept connections"),
+		// WaitingFor: wait.ForLog("database system is ready to accept connections"),
 		// wait.ForSQL(nat.Port(port), "postgres", dbURL).
 		// 	WithStartupTimeout(time.Second * 5).
 		// 	WithQuery("SELECT 10"),
@@ -119,7 +111,7 @@ func GetTestDatabase(t *testing.T) (testcontainers.Container, *sqlData) {
 func TestDatabase(t *testing.T) {
 	// 1. Create PostgreSQL container request
 	ctx := context.Background()
-	portt := "5432"
+	portt := "5433/tcp"
 	user := "postgres"
 	password := "123"
 	database := "test"
@@ -132,7 +124,7 @@ func TestDatabase(t *testing.T) {
 			"POSTGRES_PASSWORD": password,
 			"POSTGRES_DB":       database,
 		},
-		WaitingFor: wait.ForLog("database system is ready to accept connections"),
+		// WaitingFor: wait.ForLog("database system is ready to accept connections"),
 		// wait.ForSQL(nat.Port(port), "postgres", dbURL).
 		// 	WithStartupTimeout(time.Second * 5).
 		// 	WithQuery("SELECT 10"),
@@ -154,11 +146,11 @@ func TestDatabase(t *testing.T) {
 
 	// 3.1 Get host and port of PostgreSQL container
 	host, _ := redisC.Host(context.Background())
-	port, _ := redisC.MappedPort(context.Background(), "5432")
+	port, _ := redisC.MappedPort(context.Background(), "5433")
 
 	// 3.2 Create db connection string and connect
 
-	dbURI := fmt.Sprintf("host=%s port=%s user=postgres password=123 dbname=test sslmode=disable", host, port.Port())
+	dbURI := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=disable", host, port.Port(), user, password, database)
 
 	// connPool := ""
 	_, err = Connect(dbURI)

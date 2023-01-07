@@ -1,6 +1,6 @@
 Begin;
 
-CREATE DATABASE test;
+-- CREATE DATABASE test;
 
 create table users (
     id serial primary key,
