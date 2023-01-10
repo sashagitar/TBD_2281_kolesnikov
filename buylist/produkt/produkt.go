@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sashagitar/TBD_2281_kolesnikov/sqlmy"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/sqlmy"
 )
 
 type Timer struct {

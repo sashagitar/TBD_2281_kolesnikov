@@ -6,7 +6,7 @@ import (
 	//tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	"github.com/sashagitar/TBD_2281_kolesnikov/buylist"
-	"github.com/sashagitar/TBD_2281_kolesnikov/sqlmy"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/sqlmy"
 	"github.com/sashagitar/TBD_2281_kolesnikov/tgbot/comands"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

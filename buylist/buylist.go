@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sashagitar/TBD_2281_kolesnikov/list"
-	"github.com/sashagitar/TBD_2281_kolesnikov/produkt"
-	"github.com/sashagitar/TBD_2281_kolesnikov/sqlmy"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/list"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/produkt"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/sqlmy"
 )
 
 type BD interface {

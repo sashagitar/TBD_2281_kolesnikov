@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate"
-	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/golang-migrate/migrate/database/postgres"
+	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -23,10 +24,10 @@ type ProduktDB struct {
 	Date_finish time.Time `db:"date_finish"`
 }
 
-type Users struct {
-	Id    int    `db:"id"`
-	Id_tg string `db:"id_tg"`
-}
+// type Users struct {
+// 	Id    int    `db:"id"`
+// 	Id_tg string `db:"id_tg"`
+// }
 
 type Notification struct {
 	Id       int    `db:"id"`
@@ -35,70 +36,55 @@ type Notification struct {
 }
 
 type sqlData struct {
-	db     *sqlx.DB
-	People *Users
+	db *sqlx.DB
+	m  *migrate.Migrate
+
+	// People *Users
 }
 
-func MigrateDb(connUri string) error {
-	// make migration
+const folderMigr = "file://C:/Users/lol/Desktop/TBD_2281_kolesnikov/migrations"
 
-	// Read migrations from /home/migrations and connect to a local postgres database.
-	m, err := migrate.New("file://migrations", connUri)
-	if err != nil {
-		return err
-	}
-
-	// Migrate all the way up ...
-	if err := m.Up(); err != nil {
-		panic(err)
-	}
-	err = m.Force(1)
-	if err != nil {
-		return fmt.Errorf("sqlmy MigrateDb Force: %w", err)
-	}
-	if err := m.Down(); err != nil {
-		return fmt.Errorf("sqlmy MigrateDb: %w", err)
-	}
-	log.Println("migration is done")
-	return nil
-	//11 is migrations version number, you may use your latest version
-
-}
-
-func MigrationDown(connUri string) error {
-	m, err := migrate.New("file://migrations", connUri)
-	if err != nil {
-		panic(err)
-	}
-	err = m.Force(1)
+func MigrationDown(m *migrate.Migrate) error {
 	if err := m.Down(); err != nil {
 		return fmt.Errorf("sqlmy MigrationDown: %w", err)
 	}
-	log.Println("migration is done")
-
-	//11 is migrations version number, you may use your latest version
-	if err != nil {
-		return fmt.Errorf("sqlmy MigrationDown: %w", err)
-	}
+	log.Println("migrate down done")
 	return nil
 }
 
 func Connect(connUri string) (*sqlData, error) {
-	err := MigrateDb(connUri)
+	db, err := sqlx.Connect("postgres", connUri)
+	if err != nil {
+		return nil, fmt.Errorf("sqlmy Connect to sql fail: %w", err)
+	}
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("sqlmy Connect fail create driver mysql: %w", err)
+	}
+	m, err := migrate.NewWithDatabaseInstance(
+		folderMigr,
+		"postgres",
+		driver,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("sqlmy Connect migrate fail: %w", err)
 	}
-	db, err := sqlx.Connect("pgx", connUri)
-	if err != nil {
-		return nil, fmt.Errorf("sqlmy Connect: %w", err)
+	// err = m.Force(1)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("sqlmy MigrateDb Force: %w", err)
+	// }
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return nil, fmt.Errorf("sqlmy MIgration Up fail: %w", err)
 	}
-	u := Users{
-		Id:    0,
-		Id_tg: "123",
-	}
+
+	// u := Users{
+	// 	Id:    0,
+	// 	Id_tg: "123",
+	// }
 	s := sqlData{
-		db:     db,
-		People: &u,
+		db: db,
+		m:  m,
+		// People: &u,
 	}
 	return &s, nil
 

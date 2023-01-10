@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sashagitar/TBD_2281_kolesnikov/buylist"
-	"github.com/sashagitar/TBD_2281_kolesnikov/produkt"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/produkt"
 )
 
 type buylister interface {

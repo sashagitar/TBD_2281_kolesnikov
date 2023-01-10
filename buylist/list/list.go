@@ -3,7 +3,7 @@ package list
 import (
 	"fmt"
 
-	"github.com/sashagitar/TBD_2281_kolesnikov/produkt"
+	"github.com/sashagitar/TBD_2281_kolesnikov/buylist/produkt"
 )
 
 type List struct {
